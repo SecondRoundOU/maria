@@ -3,6 +3,7 @@ import { VapiRequest } from '@/lib/types';
 import { Twilio } from 'twilio';
 import axios from 'axios';
 import { z } from 'zod';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 // Schema for validating caller ID requests
 const callerIdSchema = z.object({
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     if (toolCall.function.name === 'getCallerId') {
       return handleGetCallerId(toolCall, args);
     } else if (toolCall.function.name === 'makeCall') {
-      return handleMakeCall(toolCall, args);
+      return handleMakeCall(toolCall, args, request);
     }
     
     return NextResponse.json({ error: 'Unknown function' }, { 
@@ -123,7 +124,7 @@ async function handleGetCallerId(toolCall: any, args: any) {
 /**
  * Handle the makeCall function call
  */
-async function handleMakeCall(toolCall: any, args: any) {
+async function handleMakeCall(toolCall: any, args: any, request: Request) {
   try {
     // Validate the input
     const validation = twilioCallSchema.safeParse(args);
@@ -157,7 +158,7 @@ async function handleMakeCall(toolCall: any, args: any) {
     const call = await client.calls.create({
       to: to,
       from: from,
-      url: callbackUrl || process.env.DEFAULT_CALL_WEBHOOK_URL || 'https://demo.twilio.com/welcome/voice/'
+      url: callbackUrl || `${getBaseUrl(request)}/voice`
     });
     
     // Skip storing in database since Prisma is removed
