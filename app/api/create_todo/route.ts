@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 
 export async function POST(request: Request) {
@@ -40,12 +39,13 @@ export async function POST(request: Request) {
       : toolCall.function.arguments;
     const { title, description = '' } = params;
 
-    const todo = await prisma.todo.create({
-      data: {
-        title,
-        description
-      }
-    });
+    // Mock todo creation (since Prisma is removed)
+    const todo = {
+      id: Date.now(),
+      title,
+      description,
+      completed: false
+    };
 
     return NextResponse.json({
       results: [

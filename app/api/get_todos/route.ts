@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 
 export async function POST(request: Request) {
@@ -18,7 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Request' }, { status: 400 });
     }
     
-    const todos = await prisma.todo.findMany();
+    // Mock todos since Prisma is removed
+    const todos = [
+      { id: 1, title: 'Sample Todo', description: 'This is a sample', completed: false }
+    ];
     
     return NextResponse.json({
       results: [

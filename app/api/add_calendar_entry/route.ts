@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 import axios from 'axios';
 
@@ -90,18 +89,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Request' }, { status: 400 });
     }
     
-    let args: Record<string, any>;
-    if (typeof toolCall.function.arguments === 'string') {
-      args = JSON.parse(toolCall.function.arguments);
-    } else {
-      args = toolCall.function.arguments;
+    let args = toolCall.function.arguments;
+    if (typeof args === 'string') {
+      args = JSON.parse(args);
     }
     
-    const title = args.title || '';
-    let description = args.description || '';
-    const event_from_str = args.event_from || '';
-    const event_to_str = args.event_to || '';
-    const phoneNumber = args.phoneNumber || null;
+    // Ensure args is an object
+    const argsObj = typeof args === 'string' ? {} : args as Record<string, any>;
+    
+    const title = argsObj.title || '';
+    let description = argsObj.description || '';
+    const event_from_str = argsObj.event_from || '';
+    const event_to_str = argsObj.event_to || '';
+    const phoneNumber = argsObj.phoneNumber || null;
     
     if (!title || !event_from_str || !event_to_str) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -153,15 +153,14 @@ Source: ${callerDetails.source || 'N/A'}
       const event_from = new Date(event_from_str);
       const event_to = new Date(event_to_str);
       
-      // Create the calendar event with the latest Todo as a nested object
-      const calendarEvent = await prisma.calendarEvent.create({
-        data: {
-          title,
-          description,
-          event_from,
-          event_to
-        }
-      });
+      // Mock calendar event creation (since Prisma is removed)
+      const calendarEvent = {
+        id: Date.now(),
+        title,
+        description,
+        event_from,
+        event_to
+      };
       
       // Create the response object with the calendar event and the latest Todo
       const responseObject = {

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 
 export async function POST(request: Request) {
@@ -18,7 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Request' }, { status: 400 });
     }
     
-    const reminders = await prisma.reminder.findMany();
+    // Mock reminders since Prisma is removed
+    const reminders = [
+      { id: 1, reminder_text: 'Sample Reminder', importance: 'high' }
+    ];
     
     return NextResponse.json({
       results: [

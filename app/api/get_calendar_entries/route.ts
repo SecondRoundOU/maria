@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 
 export async function POST(request: Request) {
@@ -18,7 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Request' }, { status: 400 });
     }
     
-    const events = await prisma.calendarEvent.findMany();
+    // Mock calendar events since Prisma is removed
+    const events = [
+      { id: 1, title: 'Sample Event', description: 'This is a sample event', event_from: new Date(), event_to: new Date() }
+    ];
     
     return NextResponse.json({
       results: [

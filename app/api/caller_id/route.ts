@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 import { Twilio } from 'twilio';
 import axios from 'axios';
@@ -49,11 +48,9 @@ export async function POST(request: Request) {
       });
     }
     
-    let args: Record<string, any>;
-    if (typeof toolCall.function.arguments === 'string') {
-      args = JSON.parse(toolCall.function.arguments);
-    } else {
-      args = toolCall.function.arguments;
+    let args = toolCall.function.arguments;
+    if (typeof args === 'string') {
+      args = JSON.parse(args);
     }
     
     // Handle different function calls
@@ -102,16 +99,7 @@ async function handleGetCallerId(toolCall: any, args: any) {
     // For this example, we'll simulate a lookup with mock data
     const callerInfo = await lookupCallerInfo(formattedNumber);
     
-    // Store the lookup in the database for history/analytics
-    try {
-      await prisma.$queryRaw`
-        INSERT INTO "CallerLookup" ("phoneNumber", "lookupResult", "timestamp")
-        VALUES (${formattedNumber}, ${JSON.stringify(callerInfo)}, ${new Date()})
-      `;
-    } catch (err: any) {
-      // Log the error but don't fail the request
-      console.error('Error storing caller lookup:', err);
-    }
+    // Skip storing in database since Prisma is removed
     
     return NextResponse.json({
       results: [
@@ -172,16 +160,7 @@ async function handleMakeCall(toolCall: any, args: any) {
       url: callbackUrl || process.env.DEFAULT_CALL_WEBHOOK_URL || 'https://demo.twilio.com/welcome/voice/'
     });
     
-    // Store the call in the database
-    try {
-      await prisma.$queryRaw`
-        INSERT INTO "CallRecord" ("to", "from", "callSid", "status", "timestamp")
-        VALUES (${to}, ${from}, ${call.sid}, ${call.status}, ${new Date()})
-      `;
-    } catch (err: any) {
-      // Log the error but don't fail the request
-      console.error('Error storing call record:', err);
-    }
+    // Skip storing in database since Prisma is removed
     
     return NextResponse.json({
       results: [
@@ -233,28 +212,7 @@ async function lookupCallerInfo(phoneNumber: string): Promise<any> {
     // Format the phone number (basic formatting, can be enhanced)
     const formattedNumber = formatPhoneNumber(phoneNumber);
     
-    // First try to find the caller in our database
-    const callerResults = await prisma.$queryRaw`
-      SELECT * FROM "CallerDatabase" 
-      WHERE "phoneNumber" = ${formattedNumber}
-      OR "phoneNumber" = ${phoneNumber.replace(/\D/g, '')}
-      OR "phoneNumber" = ${phoneNumber.slice(-6)}
-      LIMIT 1
-    `;
-    
-    // If we found a match in our database, return it
-    if (Array.isArray(callerResults) && callerResults.length > 0) {
-      const caller = callerResults[0];
-      return {
-        name: caller.name,
-        type: caller.type || 'unknown',
-        spamLikelihood: caller.spamLikelihood || 'low',
-        location: caller.location || 'Unknown',
-        carrier: caller.carrier || 'Unknown',
-        licensePlate: caller.licensePlate || null,
-        source: 'internal database'
-      };
-    }
+    // Skip database lookup since Prisma is removed
     
     // If not found in our database, try the VAPI AI API if configured
     const vapiApiKey = process.env.VAPI_AI_API_KEY;

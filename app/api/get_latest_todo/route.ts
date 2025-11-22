@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { VapiRequest } from '@/lib/types';
 
 /**
@@ -37,12 +36,13 @@ export async function POST(request: Request) {
       // Not a VAPI request or invalid JSON, continue without toolCallId
     }
     
-    // Fetch the latest Todo by getting the one with the highest ID
-    const latestTodo = await prisma.todo.findFirst({
-      orderBy: {
-        id: 'desc'
-      }
-    });
+    // Mock latest todo since Prisma is removed
+    const latestTodo = {
+      id: 1,
+      title: 'Sample Latest Todo',
+      description: 'This is the latest sample todo',
+      completed: false
+    };
     
     // If this was called as a VAPI function, format the response accordingly
     if (toolCallId) {

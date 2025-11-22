@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -15,21 +14,17 @@ export async function GET(request: Request) {
     };
     
     if (type === 'lookups') {
-      // Get caller lookups from the database using raw query
-      const lookups = await prisma.$queryRaw`
-        SELECT * FROM "CallerLookup"
-        ORDER BY "timestamp" DESC
-        LIMIT 50
-      `;
+      // Mock lookups since Prisma is removed
+      const lookups = [
+        { id: 1, phoneNumber: '+1234567890', lookupResult: '{"name":"Sample"}', timestamp: new Date() }
+      ];
       
       return NextResponse.json({ lookups }, { headers: corsHeaders });
     } else if (type === 'calls') {
-      // Get call records from the database using raw query
-      const calls = await prisma.$queryRaw`
-        SELECT * FROM "CallRecord"
-        ORDER BY "timestamp" DESC
-        LIMIT 50
-      `;
+      // Mock calls since Prisma is removed
+      const calls = [
+        { id: 1, to: '+1234567890', from: '+0987654321', callSid: 'CA123', status: 'completed', timestamp: new Date() }
+      ];
       
       return NextResponse.json({ calls }, { headers: corsHeaders });
     } else {
