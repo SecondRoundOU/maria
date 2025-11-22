@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { MongoClient, ObjectId } from 'mongodb';
-
-const uri = process.env.MONGODB_URI!;
-const client = new MongoClient(uri);
+import { ObjectId } from 'mongodb';
+import clientPromise from '@/lib/mongodb';
 
 interface MongoTodo {
   _id?: ObjectId;
@@ -14,9 +12,7 @@ interface MongoTodo {
 
 export async function GET() {
   try {
-    // Connect to MongoDB
-    await client.connect();
-
+    const client = await clientPromise;
     const database = client.db('vapi_integration');
     const collection = database.collection<MongoTodo>('todos');
 
@@ -33,15 +29,15 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching MongoDB todos:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, {
+    return NextResponse.json({ 
+      error: 'Internal Server Error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, {
       status: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
       }
     });
-  } finally {
-    // Close the connection
-    await client.close();
   }
 }
 
@@ -71,9 +67,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // Connect to MongoDB
-    await client.connect();
-
+    const client = await clientPromise;
     const database = client.db('vapi_integration');
     const collection = database.collection<MongoTodo>('todos');
 
@@ -101,14 +95,14 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Error creating MongoDB todo:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, {
+    return NextResponse.json({ 
+      error: 'Internal Server Error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, {
       status: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
       }
     });
-  } finally {
-    // Close the connection
-    await client.close();
   }
 }
