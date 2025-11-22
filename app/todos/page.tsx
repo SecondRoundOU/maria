@@ -7,10 +7,11 @@ import ModernForm, { FormInput, FormTextarea } from '../components/ModernForm';
 import ModernItemCard from '../components/ModernItemCard';
 
 interface Todo {
-  id: number;
+  _id: string;
   title: string;
-  description: string | null;
-  completed: boolean;
+  description?: string;
+  completed?: boolean;
+  createdAt?: string;
 }
 
 export default function TodosPage() {
@@ -21,29 +22,16 @@ export default function TodosPage() {
 
   const fetchTodos = async () => {
     try {
-      const response = await fetch('/api/get_todos', {
-        method: 'POST',
+      const response = await fetch('/api/mongo_todo', {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'fetch-todos-' + Date.now(),
-                function: {
-                  name: 'getTodos',
-                  arguments: {}
-                }
-              }
-            ]
-          }
-        })
+        }
       });
 
       const data = await response.json();
-      if (data.results && data.results[0] && data.results[0].result) {
-        setTodos(data.results[0].result);
+      if (data.success && data.todos) {
+        setTodos(data.todos);
       }
     } catch (error) {
       console.error('Error fetching todos:', error);
@@ -60,26 +48,14 @@ export default function TodosPage() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/create_todo', {
+      const response = await fetch('/api/mongo_todo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'create-todo-' + Date.now(),
-                function: {
-                  name: 'createTodo',
-                  arguments: {
-                    title,
-                    description
-                  }
-                }
-              }
-            ]
-          }
+          title,
+          description
         })
       });
 
@@ -95,27 +71,15 @@ export default function TodosPage() {
     }
   };
 
-  const completeTodo = async (id: number) => {
+  const completeTodo = async (id: string) => {
     try {
-      const response = await fetch('/api/complete_todo', {
-        method: 'POST',
+      const response = await fetch('/api/mongo_todo/complete', {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'complete-todo-' + Date.now(),
-                function: {
-                  name: 'completeTodo',
-                  arguments: {
-                    id
-                  }
-                }
-              }
-            ]
-          }
+          id
         })
       });
 
@@ -127,27 +91,15 @@ export default function TodosPage() {
     }
   };
 
-  const deleteTodo = async (id: number) => {
+  const deleteTodo = async (id: string) => {
     try {
-      const response = await fetch('/api/delete_todo', {
-        method: 'POST',
+      const response = await fetch('/api/mongo_todo/delete', {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'delete-todo-' + Date.now(),
-                function: {
-                  name: 'deleteTodo',
-                  arguments: {
-                    id
-                  }
-                }
-              }
-            ]
-          }
+          id
         })
       });
 
@@ -231,9 +183,9 @@ export default function TodosPage() {
           }}>
             {todos.map((todo) => (
               <ModernItemCard
-                key={todo.id}
+                key={todo._id}
                 title={todo.title}
-                description={todo.description || undefined}
+                description={todo.description}
                 metadata={[
                   {
                     label: 'Status',
@@ -241,8 +193,8 @@ export default function TodosPage() {
                     icon: todo.completed ? Check : Square
                   }
                 ]}
-                onDelete={() => deleteTodo(todo.id)}
-                onAction={!todo.completed ? () => completeTodo(todo.id) : undefined}
+                onDelete={() => deleteTodo(todo._id)}
+                onAction={!todo.completed ? () => completeTodo(todo._id) : undefined}
                 actionText={!todo.completed ? 'Mark Complete' : undefined}
                 actionColor={!todo.completed ? '#10b981' : undefined}
                 gradient={todo.completed 

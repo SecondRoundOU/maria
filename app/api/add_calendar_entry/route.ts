@@ -90,19 +90,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Request' }, { status: 400 });
     }
     
-    let args = toolCall.function.arguments;
-    if (typeof args === 'string') {
-      args = JSON.parse(args);
+    let args: Record<string, any>;
+    if (typeof toolCall.function.arguments === 'string') {
+      args = JSON.parse(toolCall.function.arguments);
+    } else {
+      args = toolCall.function.arguments;
     }
     
-    // Ensure args is an object
-    const argsObj = typeof args === 'string' ? {} : args as Record<string, any>;
-    
-    const title = argsObj.title || '';
-    let description = argsObj.description || '';
-    const event_from_str = argsObj.event_from || '';
-    const event_to_str = argsObj.event_to || '';
-    const phoneNumber = argsObj.phoneNumber || null;
+    const title = args.title || '';
+    let description = args.description || '';
+    const event_from_str = args.event_from || '';
+    const event_to_str = args.event_to || '';
+    const phoneNumber = args.phoneNumber || null;
     
     if (!title || !event_from_str || !event_to_str) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

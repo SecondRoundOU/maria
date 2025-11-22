@@ -18,9 +18,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Request' }, { status: 400 });
     }
     
-    let args = toolCall.function.arguments;
-    if (typeof args === 'string') {
-      args = JSON.parse(args);
+    let args: Record<string, any>;
+    if (typeof toolCall.function.arguments === 'string') {
+      args = JSON.parse(toolCall.function.arguments);
+    } else {
+      args = toolCall.function.arguments;
     }
     
     const todoId = args.id;
