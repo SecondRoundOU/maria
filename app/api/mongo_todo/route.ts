@@ -56,9 +56,25 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { title, description = '' }: { title: string; description?: string } = body;
+    console.log('Received POST body:', JSON.stringify(body, null, 2));
+    
+    // Handle VAPI nested structure
+    let title: string;
+    let description: string = '';
+    
+    if (body.message?.toolWithToolCallList?.[0]?.toolCall?.function?.arguments) {
+      // VAPI format
+      const args = body.message.toolWithToolCallList[0].toolCall.function.arguments;
+      title = args.title;
+      description = args.description || '';
+    } else {
+      // Direct format (from web UI)
+      title = body.title;
+      description = body.description || '';
+    }
 
     if (!title) {
+      console.log('Title validation failed. Title value:', title);
       return NextResponse.json({ error: 'Title is required' }, {
         status: 400,
         headers: {
