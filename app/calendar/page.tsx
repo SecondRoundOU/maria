@@ -59,7 +59,7 @@ export default function CalendarPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !eventFrom || !eventTo) return;
+    if (!title || !eventFrom) return;
 
     setLoading(true);
     try {
@@ -77,13 +77,19 @@ export default function CalendarPage() {
         })
       });
 
+      const data = await response.json();
+      
       if (response.ok) {
+        console.log('Calendar event created successfully:', data);
         setTitle('');
         setDescription('');
         setEventFrom('');
         setEventTo('');
         setLocation('');
         fetchEvents();
+      } else {
+        console.error('Failed to create event:', data);
+        alert(`Failed to create event: ${data.error}`);
       }
     } catch (error) {
       console.error('Error adding calendar event:', error);
@@ -159,11 +165,10 @@ export default function CalendarPage() {
           />
           
           <FormInput
-            label="End Date & Time"
+            label="End Date & Time (Optional - defaults to 1 hour)"
             type="datetime-local"
             value={eventTo}
             onChange={setEventTo}
-            required
           />
         </div>
         

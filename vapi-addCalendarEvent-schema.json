@@ -18,7 +18,7 @@
       "type": "string"
     },
     "endDateTime": {
-      "description": "End date and time in ISO 8601 format (e.g., '2025-11-24T11:00:00Z')",
+      "description": "Optional end date and time in ISO 8601 format (e.g., '2025-11-24T11:00:00Z'). If not provided, defaults to 1 hour after start time",
       "type": "string"
     },
     "location": {
@@ -33,5 +33,5 @@
       }
     }
   },
-  "required": ["subject", "startDateTime", "endDateTime"]
+  "required": ["subject", "startDateTime"]
 }
