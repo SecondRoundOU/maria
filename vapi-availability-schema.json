@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "attendeeEmail": {
+      "description": "The email address of the attendee to check availability with",
+      "type": "string"
+    },
+    "startDate": {
+      "description": "Optional starting date to check availability from in ISO 8601 format",
+      "type": "string"
+    }
+  },
+  "required": ["attendeeEmail"]
+}

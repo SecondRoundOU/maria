@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "userEmail": {
+      "description": "The email address of the user. If not provided, uses the default user email from environment",
+      "type": "string"
+    },
+    "eventId": {
+      "description": "The unique ID of the event to delete (obtained from checkAvailibility or addCalendarEvent responses)",
+      "type": "string"
+    }
+  },
+  "required": ["eventId"]
+}

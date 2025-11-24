@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "userEmail": {
+      "description": "The email address of the user whose calendar to read. If not provided, uses the default user email from environment",
+      "type": "string"
+    },
+    "startDate": {
+      "description": "Starting date to read calendar from in ISO 8601 format (e.g., '2025-11-24T00:00:00Z'). Defaults to today if not provided",
+      "type": "string"
+    },
+    "endDate": {
+      "description": "Ending date to read calendar until in ISO 8601 format (e.g., '2025-12-01T00:00:00Z'). If not provided, uses 'days' parameter",
+      "type": "string"
+    },
+    "days": {
+      "description": "Number of days to read ahead from start date. Defaults to 7 days if endDate is not provided",
+      "type": "number"
+    }
+  },
+  "required": []
+}

@@ -7,11 +7,20 @@ import ModernForm, { FormInput, FormTextarea } from '../components/ModernForm';
 import ModernItemCard from '../components/ModernItemCard';
 
 interface CalendarEvent {
-  id: number;
-  title: string;
-  description: string;
-  event_from: string;
-  event_to: string;
+  id: string;
+  subject: string;
+  start: string;
+  end: string;
+  timeZone: string;
+  location: string;
+  isAllDay: boolean;
+  organizer: string;
+  attendees: Array<{
+    email: string;
+    name: string;
+    status: string;
+  }>;
+  bodyPreview: string;
 }
 
 export default function CalendarPage() {
@@ -20,33 +29,24 @@ export default function CalendarPage() {
   const [description, setDescription] = useState('');
   const [eventFrom, setEventFrom] = useState('');
   const [eventTo, setEventTo] = useState('');
+  const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/get_calendar_entries', {
+      const response = await fetch('/api/checkAvailibility', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'fetch-calendar-entries-' + Date.now(),
-                function: {
-                  name: 'getCalendarEntries',
-                  arguments: {}
-                }
-              }
-            ]
-          }
+          days: 30 // Fetch events for next 30 days
         })
       });
 
       const data = await response.json();
-      if (data.results && data.results[0] && data.results[0].result) {
-        setEvents(data.results[0].result);
+      if (data.success && data.events) {
+        setEvents(data.events);
       }
     } catch (error) {
       console.error('Error fetching calendar events:', error);
@@ -63,28 +63,17 @@ export default function CalendarPage() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/add_calendar_entry', {
+      const response = await fetch('/api/addCalendarEvent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'add-calendar-entry-' + Date.now(),
-                function: {
-                  name: 'addCalendarEntry',
-                  arguments: {
-                    title,
-                    description,
-                    event_from: eventFrom,
-                    event_to: eventTo
-                  }
-                }
-              }
-            ]
-          }
+          subject: title,
+          description,
+          startDateTime: eventFrom,
+          endDateTime: eventTo,
+          location
         })
       });
 
@@ -93,6 +82,7 @@ export default function CalendarPage() {
         setDescription('');
         setEventFrom('');
         setEventTo('');
+        setLocation('');
         fetchEvents();
       }
     } catch (error) {
@@ -102,27 +92,15 @@ export default function CalendarPage() {
     }
   };
 
-  const deleteEvent = async (id: number) => {
+  const deleteEvent = async (id: string) => {
     try {
-      const response = await fetch('/api/delete_calendar_entry', {
+      const response = await fetch('/api/deleteCalendarEvent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: {
-            toolCalls: [
-              {
-                id: 'delete-calendar-entry-' + Date.now(),
-                function: {
-                  name: 'deleteCalendarEntry',
-                  arguments: {
-                    id
-                  }
-                }
-              }
-            ]
-          }
+          eventId: id
         })
       });
 
@@ -142,8 +120,8 @@ export default function CalendarPage() {
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       <ModernPageHeader 
-        title="Calendar Events"
-        description="Schedule, view, and manage your calendar events with precise start and end times. Stay organized and never miss important appointments."
+        title="Microsoft Calendar"
+        description="View and manage your Microsoft 365 calendar events. Create new meetings, check availability, and stay synchronized with your Outlook calendar."
         icon={Calendar}
         gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
       />
@@ -188,6 +166,14 @@ export default function CalendarPage() {
             required
           />
         </div>
+        
+        <FormInput
+          label="Location (Optional)"
+          type="text"
+          value={location}
+          onChange={setLocation}
+          placeholder="Enter event location"
+        />
       </ModernForm>
       
       <div style={{
@@ -230,19 +216,29 @@ export default function CalendarPage() {
             {events.map((event) => (
               <ModernItemCard
                 key={event.id}
-                title={event.title}
-                description={event.description}
+                title={event.subject}
+                description={event.bodyPreview || 'No description'}
                 metadata={[
                   {
                     label: 'Starts',
-                    value: formatDateTime(event.event_from),
+                    value: formatDateTime(event.start),
                     icon: Clock
                   },
                   {
                     label: 'Ends',
-                    value: formatDateTime(event.event_to),
+                    value: formatDateTime(event.end),
                     icon: Clock
-                  }
+                  },
+                  ...(event.location ? [{
+                    label: 'Location',
+                    value: event.location,
+                    icon: MapPin
+                  }] : []),
+                  ...(event.organizer ? [{
+                    label: 'Organizer',
+                    value: event.organizer,
+                    icon: Calendar
+                  }] : [])
                 ]}
                 onDelete={() => deleteEvent(event.id)}
                 gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"

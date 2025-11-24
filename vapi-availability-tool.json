@@ -1,0 +1,28 @@
+{
+  "type": "function",
+  "function": {
+    "name": "check_availability",
+    "description": "Checks calendar availability between the organizer and an attendee to find the next available meeting slot. Returns the next available 30-minute time slot within the next 3 days during working hours (9 AM - 5 PM).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "attendeeEmail": {
+          "type": "string",
+          "description": "The email address of the attendee to check availability with. This should be a valid email address."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Optional. The starting date to check availability from in ISO 8601 format (e.g., '2025-11-24T00:00:00Z'). If not provided, defaults to today."
+        }
+      },
+      "required": ["attendeeEmail"]
+    }
+  },
+  "server": {
+    "url": "https://your-domain.com/api/availability",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
