@@ -3,7 +3,7 @@ import { LucideIcon, Trash2 } from 'lucide-react';
 interface ModernItemCardProps {
   title: string;
   description?: string;
-  metadata?: { label: string; value: string; icon?: LucideIcon }[];
+  metadata?: { label: string; value: string; icon?: LucideIcon; color?: string }[];
   onDelete: () => void;
   onAction?: () => void;
   actionText?: string;
@@ -120,11 +120,11 @@ export default function ModernItemCard({
                     height: '14px',
                     width: '14px',
                     marginRight: '8px',
-                    color: '#9ca3af'
+                    color: item.color || '#9ca3af'
                   }} />
                 )}
                 <span style={{ fontWeight: '500', marginRight: '8px' }}>{item.label}:</span>
-                <span>{item.value}</span>
+                <span style={{ color: item.color || '#6b7280' }}>{item.value}</span>
               </div>
             ))}
           </div>

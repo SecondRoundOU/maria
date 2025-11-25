@@ -161,3 +161,57 @@ export function FormTextarea({ label, value, onChange, placeholder, rows = 3 }: 
     </div>
   );
 }
+
+interface FormSelectProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  required?: boolean;
+}
+
+export function FormSelect({ label, value, onChange, options, required = false }: FormSelectProps) {
+  return (
+    <div>
+      <label style={{
+        display: 'block',
+        fontSize: '14px',
+        fontWeight: '500',
+        color: '#374151',
+        marginBottom: '6px'
+      }}>
+        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          border: '1px solid #d1d5db',
+          borderRadius: '8px',
+          fontSize: '14px',
+          transition: 'border-color 0.2s ease',
+          outline: 'none',
+          backgroundColor: 'white',
+          cursor: 'pointer'
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = '#2563eb';
+          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = '#d1d5db';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
